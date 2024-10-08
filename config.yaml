@@ -1,6 +1,7 @@
 server:
   port: ":8080"
   uploadMem: 32
+  db: "root:akn123@tcp(139.9.63.51:3522)/goTest?charset=utf8mb4&parseTime=True&loc=Local"
 work:
   url: "http://localhost:8080/download/"
 #  url: "http://139.9.63.51/download/"

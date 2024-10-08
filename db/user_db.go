@@ -21,7 +21,7 @@ type User struct {
 	Address      string    `json:"Address"`
 	Headportrait string    `json:"Headportrait"`
 	Created      time.Time `gorm:"autoCreateTime"`
-	Updated      time.Time `gorm:"autoCreateTime"`
+	Updated      time.Time `gorm:"autoUpdateTime"`
 }
 
 // RegisterDb 注册

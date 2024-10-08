@@ -4,4 +4,5 @@ package config
 type Server struct {
 	Port      string `yaml:"port"`
 	UploadMem int64  `yaml:"uploadMem"`
+	Dns       string `yaml:"db"`
 }
