@@ -1,0 +1,6 @@
+server:
+  port: ":8080"
+  uploadMem: 32
+work:
+  url: "http://localhost:8080/download/"
+#  url: "http://139.9.63.51/download/"

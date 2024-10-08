@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成下载链接</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .input-group button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .input-group button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="input-group">
+            <label for="version">选择版本:</label>
+            <select id="version">
+                <option value="9">AAS-V9</option>
+                <option value="10">AAS-V10</option>
+                <option value="10a">AAMS-V10</option>
+                <option value="10b">AAMS-V10内嵌版</option>
+                <option value="12a">ALB_X86</option>
+                <option value="12b">ALB_ARM</option>
+                <option value="13">ADMQ</option>
+                <option value="14a">AMDC_X86</option>
+                <option value="14b">AMDC_X86</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <button id="generate">点击生成链接</button>
+        </div>
+        <div class="input-group">
+            <textarea id="result" rows="5" readonly></textarea>
+        </div>
+        <div class="input-group">
+            <button id="copy">点击复制链接</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('generate').addEventListener('click', function() {
+            const version = document.getElementById('version').value;
+            // const url = 'http://localhost:8080/getRan';
+            const url = 'http://139.9.63.51:8080/getRan';
+            // 使用FormData对象构建表单数据
+            const formData = new FormData();
+            formData.append('version', version);
+            fetch(url, {
+                method: 'POST',
+                body: formData 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('请求失败，请重试');
+                }
+                return response.text();
+            })
+            .then(data => {
+                document.getElementById('result').value = data;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').value = error.message;
+            });
+        });
+
+        document.getElementById('copy').addEventListener('click', function() {
+            const resultTextarea = document.getElementById('result');
+            resultTextarea.select();
+            document.execCommand('copy');
+            alert('已复制到剪贴板');
+        });
+    </script>
+</body>
+</html>
