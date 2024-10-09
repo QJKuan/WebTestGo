@@ -22,6 +22,10 @@ func RequestInit(r *gin.Engine) {
 	UpdateUser(r)
 	//上传文件
 	UploadFile(r)
+	//下载文件
+	DownloadFile(r)
+	//获取所有文件详细信息
+	GetFileInfos(r)
 
 	//获取下载地址以及下载aas相关包
 	CreateMap()

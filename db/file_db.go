@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"fmt"
 	"time"
 )
@@ -30,9 +31,32 @@ func SetFileInfo(fi FileInfo) {
 
 }
 
-// GetFilesInfo  获取所有可下载文件属性回写前端页面
-func GetFilesInfo() {
-	fi := FileInfo{}
-	DB.First(&fi)
-	fmt.Println(fi)
+// GetFilesInfos  获取所有可下载文件属性回写前端页面
+/**
+page 页数
+pageSize 每页多少条
+*/
+func GetFilesInfos(page int, pageSize int) *[]FileInfo {
+	//查询起始位置 即偏移量
+	offSet := (page - 1) * pageSize
+
+	var fis []FileInfo
+	//分页查找
+	result := DB.Offset(offSet).Limit(pageSize).Find(&fis)
+	if result.Error != nil {
+		fmt.Println(errors.New("分页查询异常"))
+	}
+	return &fis
+
+}
+
+func GetFilesInfo(fileName string) bool {
+	fi := FileInfo{FileName: fileName}
+	//分页查找
+	result := DB.First(&fi)
+	if result.Error != nil {
+		fmt.Println(errors.New("查询异常"))
+		return false
+	}
+	return result.RowsAffected > 0
 }
