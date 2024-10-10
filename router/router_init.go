@@ -16,6 +16,8 @@ func RequestInit(r *gin.Engine) {
 
 	//拦截未登录请求
 	r.Use(TokenVerify())
+	//创建Token存储map
+	CreateMap()
 
 	//注册服务
 	RegisterControl(r)
@@ -33,23 +35,12 @@ func RequestInit(r *gin.Engine) {
 	//获取所有文件详细信息
 	GetFileInfos(r)
 
-	//获取下载地址以及下载aas相关包
-	CreateMap()
-	GetRandom(r)
-	Timer()
-
 }
-
-// RAN_MAP 创建全局变量: 存储aas随机数和版本号
-var RAN_MAP map[string]string
 
 // TOKEN_MAP 创建全局变量: 存储Token的值
 var TOKEN_MAP map[string]interface{}
 
 func CreateMap() {
-	//创建随机数存储的map
-	ranMap := make(map[string]string)
-	RAN_MAP = ranMap
 	//创建token的值存储map
 	tokMap := make(map[string]interface{})
 	TOKEN_MAP = tokMap
