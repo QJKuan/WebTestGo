@@ -95,5 +95,4 @@ func GetFileInfos(r *gin.Engine) {
 		infos := db.GetFilesInfos(pag.Page, pag.PageSize)
 		c.JSON(http.StatusOK, infos)
 	})
-
 }

@@ -60,3 +60,7 @@ func GetFilesInfo(fileName string) bool {
 	}
 	return result.RowsAffected > 0
 }
+
+func Test() {
+
+}
