@@ -8,6 +8,8 @@ import (
 func RequestInit(r *gin.Engine) {
 	//全局相关请求
 	{
+		//设置文件上传下载一次可用内存
+		r.MaxMultipartMemory = config.GBL_UPMEM << 20
 		//取消跨域拦截
 		r.Use(func(c *gin.Context) {
 			c.Header("Access-Control-Allow-Origin", "*")
@@ -35,23 +37,27 @@ func RequestInit(r *gin.Engine) {
 		//UpdateUser(userR)
 		//用户详情临时表
 		SetUserInfoTmp(userR)
+		//下载文件
+		DownloadFile(userR)
+		//获取所有文件详细信息
+		GetFileInfos(userR)
 	}
 
 	//文件相关请求
 	{
-		r.MaxMultipartMemory = config.GBL_UPMEM << 20
-		//上传文件
-		UploadFile(r)
-		//下载文件
-		DownloadFile(r)
-		//获取所有文件详细信息
-		GetFileInfos(r)
+
 	}
 
 	//管理员相关请求
 	{
 		adminR := r.Group("/admin")
 		AdminLogin(adminR)
+		//上传文件
+		UploadFile(adminR)
+		//下载文件
+		DownloadFile(adminR)
+		//获取所有文件详细信息
+		GetFileInfos(adminR)
 	}
 
 }

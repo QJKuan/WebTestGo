@@ -29,6 +29,7 @@ func AdminLogin(r *gin.RouterGroup) {
 			}
 			token := fmt.Sprintf("%x", sha256.Sum256(adminJ))
 			ADMIN_TOKEN[token] = admin
+			c.SetCookie("token", token, 3600, "/", "localhost", false, true)
 			c.String(http.StatusOK, "登录成功")
 			return
 		}

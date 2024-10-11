@@ -11,7 +11,7 @@ import (
 )
 
 // UploadFile 上传文件
-func UploadFile(r *gin.Engine) {
+func UploadFile(r *gin.RouterGroup) {
 	r.POST("/upload", func(c *gin.Context) {
 
 		file, _ := c.FormFile("file")
@@ -57,7 +57,7 @@ func UploadFile(r *gin.Engine) {
 }
 
 // DownloadFile 文件下载功能
-func DownloadFile(r *gin.Engine) {
+func DownloadFile(r *gin.RouterGroup) {
 	r.POST("/downfile", func(c *gin.Context) {
 		fileName := c.PostForm("fileName")
 		//判断时候有此文件名称
@@ -77,7 +77,7 @@ type Pagination struct {
 }
 
 // GetFileInfos 获取文件详细信息
-func GetFileInfos(r *gin.Engine) {
+func GetFileInfos(r *gin.RouterGroup) {
 	r.POST("/getFileInfos", func(c *gin.Context) {
 		pag := Pagination{}
 		err := c.Bind(&pag)

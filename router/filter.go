@@ -25,7 +25,7 @@ func FilterInit() {
 	adminMap := make(map[string]interface{})
 	ADMIN_TOKEN = adminMap
 
-	RE = regexp.MustCompile(`/(.*?)[^/]`)
+	RE = regexp.MustCompile(`/(.*?)/`)
 }
 
 // TokenVerify 登录校验逻辑
@@ -46,40 +46,43 @@ func TokenVerify() gin.HandlerFunc {
 		if err != nil {
 			log.Println("Cookie存在问题 : " + err.Error())
 			//如果报错或者为空，则直接拦截
-			c.Redirect(http.StatusFound, "/user/login")
+			c.Redirect(http.StatusFound, "/login")
+			c.Abort()
 			return
 		}
 
 		//对于 user 用户的是否为登录状态的校验
 		if auth == "/user/" {
-			//如果访问登录页面
-			if path == "/login" {
-				//如果已经登录 则跳转到首页
-
-				//未登录则放行
-				c.Next()
-				return
-			}
-
-		}
-
-		//对于 admin 用户的是否为登录状态的校验
-		if auth == "/admin/" {
-
-		}
-
-		//校验token
-		if err == nil || token != "" {
 			// 校验token值是否正确
 			if _, exists := USER_TOKEN[token]; exists {
 				// 放行
 				c.Next()
 				return
 			}
+
+			//未登录则拦截并返回登陆页面
+			c.Redirect(http.StatusFound, "/login")
+			c.Abort()
+			return
+		}
+
+		//对于 admin 用户的是否为登录状态的校验
+		if auth == "/admin/" {
+			// 校验token值是否正确
+			if _, exists := ADMIN_TOKEN[token]; exists {
+				// 放行
+				c.Next()
+				return
+			}
+
+			//未登录则拦截并返回登陆页面
+			c.Redirect(http.StatusFound, "/login")
+			c.Abort()
+			return
 		}
 
 		// 剩余请求全部拦截
-		c.Redirect(http.StatusFound, "/user/login")
+		c.Redirect(http.StatusFound, "/login")
 		c.Abort()
 	}
 }
@@ -105,7 +108,9 @@ func LoginControl(r *gin.Engine) {
 			}
 			token := fmt.Sprintf("%x", sha256.Sum256(adminJ))
 			ADMIN_TOKEN[token] = user
-			c.String(http.StatusOK, "登录成功")
+			c.SetCookie("token", token, 0, "/", "localhost", false, true)
+			//fmt.Println("****Admin Token**** :", token)
+			c.String(http.StatusOK, "管理员登录成功")
 			return
 		}
 
@@ -123,9 +128,10 @@ func LoginControl(r *gin.Engine) {
 			token := fmt.Sprintf("%x", sha256.Sum256(userJ))
 			//将Token存入TOKEN_MAP中
 			USER_TOKEN[token] = user
+			//fmt.Println("****User Token**** :", token)
 			//存入cookie
-			c.SetCookie("token", token, 3600, "/", "localhost", false, true)
-			c.String(http.StatusOK, "登录成功")
+			c.SetCookie("token", token, 0, "/", "localhost", false, true)
+			c.String(http.StatusOK, "用户登录成功")
 			return
 		} else if res == 2 {
 			c.String(http.StatusOK, "登陆失败，用户并未激活")
