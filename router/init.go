@@ -20,8 +20,10 @@ func RequestInit(r *gin.Engine) {
 		})
 		//拦截未登录请求
 		r.Use(TokenVerify())
-		//创建Token存储map
-		CreateMap()
+		//初始化Filter需要的参数
+		FilterInit()
+		//登录
+		LoginControl(r)
 	}
 
 	//用户相关请求
@@ -29,8 +31,6 @@ func RequestInit(r *gin.Engine) {
 		userR := r.Group("/user")
 		//注册服务
 		RegisterControl(userR)
-		//登录
-		LoginControl(userR)
 		//上传用户信息
 		//UpdateUser(userR)
 		//用户详情临时表
@@ -54,13 +54,4 @@ func RequestInit(r *gin.Engine) {
 		AdminLogin(adminR)
 	}
 
-}
-
-// TOKEN_MAP 创建全局变量: 存储Token的值
-var TOKEN_MAP map[string]interface{}
-
-func CreateMap() {
-	//创建token的值存储map
-	tokMap := make(map[string]interface{})
-	TOKEN_MAP = tokMap
 }
