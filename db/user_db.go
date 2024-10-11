@@ -1,14 +1,17 @@
 package db
 
 import (
+	"errors"
 	"fmt"
+	"gorm.io/gorm"
+	"log"
 	"time"
 )
 
 // Register 用户登录账户密码
 type Register struct {
-	ID        uint `gorm:"primarykey"`
-	Username  string
+	ID        uint   /*`gorm:"primarykey"`*/
+	Username  string `gorm:"primarykey"`
 	Password  string
 	Able      int
 	CreatedAt time.Time `gorm:"autoCreateTime"`
@@ -68,18 +71,27 @@ type UserInfosTmp struct {
 }
 
 // RegisterDb 注册
-func RegisterDb(username string, pwd string) bool {
+func RegisterDb(username string, pwd string) int {
 	reg := Register{
 		Username: username,
 		Password: pwd,
 		Able:     0,
 	}
-	tx := DB.Create(&reg)
-	if tx.Error != nil {
-		return false
+	result := DB.First(&reg)
+	if result.Error != nil {
+		//如果数据不存在则创建
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			tx := DB.Create(&reg)
+			if tx.Error != nil {
+				return 3
+			}
+			fmt.Printf("用户 %v 插入数据成功，成功插入 %v 行 \n", reg.Username, tx.RowsAffected)
+			return 1
+		}
+		log.Println(result.Error)
+		return 3
 	}
-	fmt.Printf("用户 %v 插入数据成功，成功插入 %v 行 \n", reg.Username, tx.RowsAffected)
-	return true
+	return 2
 }
 
 // LoginDb 登录

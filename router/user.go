@@ -14,10 +14,13 @@ func RegisterControl(r *gin.RouterGroup) {
 		username := c.PostForm("username")
 		password := c.PostForm("password")
 
-		if db.RegisterDb(username, password) {
+		res := db.RegisterDb(username, password)
+		if res == 1 {
 			c.String(http.StatusOK, "注册成功")
+		} else if res == 2 {
+			c.String(http.StatusBadRequest, "用户名已存在,请重新输入用户名称")
 		} else {
-			c.String(http.StatusInternalServerError, "注册失败")
+			c.String(http.StatusBadRequest, "注册失败")
 		}
 	})
 }

@@ -18,6 +18,7 @@ var ADMIN_TOKEN map[string]interface{}
 
 var RE *regexp.Regexp
 
+// FilterInit 初始化Filter需要的参数
 func FilterInit() {
 	//创建token的值存储map
 	userMap := make(map[string]interface{})

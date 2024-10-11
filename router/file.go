@@ -60,7 +60,7 @@ func UploadFile(r *gin.RouterGroup) {
 func DownloadFile(r *gin.RouterGroup) {
 	r.POST("/downfile", func(c *gin.Context) {
 		fileName := c.PostForm("fileName")
-		//判断时候有此文件名称
+		//判断是否有此文件名称
 		if !db.GetFilesInfo(fileName) {
 			c.String(http.StatusBadRequest, "文件名称有误")
 			return
