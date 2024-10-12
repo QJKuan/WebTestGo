@@ -98,8 +98,12 @@ func RegisterDb(username string, pwd string) int {
 func LoginDb(user Register) int {
 	var reg Register
 	//查询用户是否存在
-	DB.First(&reg, "username=?", user.Username)
+	res := DB.First(&reg, "username=?", user.Username)
 
+	//没有此用户
+	if res.Error != nil {
+		return 4
+	}
 	//查询用户时候激活
 	if reg.Able == 0 {
 		fmt.Printf("用户 %v 未激活 \n", user.Username)

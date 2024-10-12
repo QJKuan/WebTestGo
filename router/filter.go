@@ -47,7 +47,7 @@ func TokenVerify() gin.HandlerFunc {
 		if err != nil {
 			log.Println("Cookie存在问题 : " + err.Error())
 			//如果报错或者为空，则直接拦截
-			c.Redirect(http.StatusFound, "/login")
+			c.String(http.StatusBadRequest, "权限不足")
 			c.Abort()
 			return
 		}
@@ -62,7 +62,7 @@ func TokenVerify() gin.HandlerFunc {
 			}
 
 			//未登录则拦截并返回登陆页面
-			c.Redirect(http.StatusFound, "/login")
+			c.String(http.StatusBadRequest, "权限不足")
 			c.Abort()
 			return
 		}
@@ -77,13 +77,13 @@ func TokenVerify() gin.HandlerFunc {
 			}
 
 			//未登录则拦截并返回登陆页面
-			c.Redirect(http.StatusFound, "/login")
+			c.String(http.StatusBadRequest, "权限不足")
 			c.Abort()
 			return
 		}
 
 		// 剩余请求全部拦截
-		c.Redirect(http.StatusFound, "/login")
+		c.String(http.StatusBadRequest, "权限不足")
 		c.Abort()
 	}
 }
@@ -135,10 +135,13 @@ func LoginControl(r *gin.Engine) {
 			c.String(http.StatusOK, "用户登录成功")
 			return
 		} else if res == 2 {
-			c.String(http.StatusOK, "登陆失败，用户并未激活")
+			c.String(http.StatusBadRequest, "登陆失败，用户并未激活")
+			return
+		} else if res == 4 {
+			c.String(http.StatusBadRequest, "登陆失败，用户名不存在")
 			return
 		} else {
-			c.String(http.StatusOK, "登陆失败，用户名或密码错误")
+			c.String(http.StatusBadRequest, "登陆失败，用户名或密码不正确")
 			return
 		}
 	})
@@ -149,7 +152,7 @@ func Logout(r *gin.Engine) {
 	r.GET("/logout", func(c *gin.Context) {
 		c.SetCookie("token", "", 0, "/", "localhost", false, true)
 		c.String(http.StatusOK, "退出登录成功")
-		c.Redirect(http.StatusFound, "/login")
+		//c.Redirect(http.StatusFound, "/login")
 		c.Abort()
 	})
 }
