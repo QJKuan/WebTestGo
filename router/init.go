@@ -26,6 +26,8 @@ func RequestInit(r *gin.Engine) {
 		FilterInit()
 		//登录
 		LoginControl(r)
+		//退出登录
+		Logout(r)
 	}
 
 	//用户相关请求

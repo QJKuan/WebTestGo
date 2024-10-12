@@ -36,8 +36,8 @@ func TokenVerify() gin.HandlerFunc {
 		path := c.Request.URL.Path
 		auth := RE.FindString(path)
 
-		//登录注册页面直接放行
-		if path == "/login" || path == "/user/add" {
+		//登录注册页面直接放行 退出登录也直接放行
+		if path == "/login" || path == "/user/add" || path == "/logout" {
 			c.Next()
 			return
 		}
@@ -141,5 +141,15 @@ func LoginControl(r *gin.Engine) {
 			c.String(http.StatusOK, "登陆失败，用户名或密码错误")
 			return
 		}
+	})
+}
+
+// Logout 退出登录
+func Logout(r *gin.Engine) {
+	r.GET("/logout", func(c *gin.Context) {
+		c.SetCookie("token", "", 0, "/", "localhost", false, true)
+		c.String(http.StatusOK, "退出登录成功")
+		c.Redirect(http.StatusFound, "/login")
+		c.Abort()
 	})
 }
