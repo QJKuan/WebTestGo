@@ -8,6 +8,7 @@ import (
 
 // DB 声明数据库连接为全局变量
 var DB *gorm.DB
+var TST *gorm.DB
 
 func InitDb() {
 	//初始化数据库
@@ -17,5 +18,11 @@ func InitDb() {
 	DB, err = gorm.Open(mysql.Open(dns), &gorm.Config{})
 	if err != nil {
 		panic("数据库连接异常，终止程序")
+	}
+
+	//事务变量
+	TST = DB.Begin()
+	if TST.Error != nil {
+		panic("事务开启失败")
 	}
 }

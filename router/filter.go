@@ -111,7 +111,7 @@ func LoginControl(r *gin.Engine) {
 			ADMIN_TOKEN[token] = user
 			c.SetCookie("token", token, 0, "/", "localhost", false, true)
 			//fmt.Println("****Admin Token**** :", token)
-			c.String(http.StatusOK, "管理员登录成功")
+			c.String(http.StatusOK, "admin")
 			return
 		}
 
@@ -132,7 +132,7 @@ func LoginControl(r *gin.Engine) {
 			//fmt.Println("****User Token**** :", token)
 			//存入cookie
 			c.SetCookie("token", token, 0, "/", "localhost", false, true)
-			c.String(http.StatusOK, "用户登录成功")
+			c.String(http.StatusOK, "user")
 			return
 		} else if res == 2 {
 			c.String(http.StatusBadRequest, "登陆失败，用户并未激活")

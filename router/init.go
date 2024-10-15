@@ -61,6 +61,8 @@ func RequestInit(r *gin.Engine) {
 		DownloadFile(adminR)
 		//获取所有文件详细信息
 		GetFileInfos(adminR)
+		//删除包
+		DeleteFile(adminR)
 	}
 
 }

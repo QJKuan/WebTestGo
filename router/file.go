@@ -66,6 +66,7 @@ func DownloadFile(r *gin.RouterGroup) {
 			return
 		}
 		//返回文件
+		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", fileName))
 		c.FileAttachment("./file/"+fileName, fileName)
 	})
 }
@@ -95,5 +96,25 @@ func GetFileInfos(r *gin.RouterGroup) {
 		c.JSON(http.StatusOK, gin.H{
 			"files": infos,
 		})
+	})
+}
+
+func DeleteFile(r *gin.RouterGroup) {
+	r.POST("/deleteFile", func(c *gin.Context) {
+		fileName := c.PostForm("fileName")
+
+		//判断是否有此文件名称
+		if !db.GetFilesInfo(fileName) {
+			c.String(http.StatusBadRequest, "文件名称有误")
+			return
+		}
+
+		//开启事务删除数据库记录并删除文件
+		if !db.DeleteFilesInfo(fileName) {
+			c.String(http.StatusBadRequest, "删除记录异常")
+			return
+		}
+
+		c.String(http.StatusOK, "文件删除成功")
 	})
 }

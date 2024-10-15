@@ -3,6 +3,8 @@ package db
 import (
 	"errors"
 	"fmt"
+	"log"
+	"os"
 	"time"
 )
 
@@ -61,6 +63,33 @@ func GetFilesInfo(fileName string) bool {
 	return result.RowsAffected > 0
 }
 
-func Test() {
+func DeleteFilesInfo(fileName string) bool {
+	fi := FileInfo{FileName: fileName}
 
+	//在事务中删除数据库记录
+	res := TST.Delete(fi)
+	if res.Error != nil {
+		//回滚
+		TST.Rollback()
+		log.Println("数据库删除文件记录异常： " + res.Error.Error())
+		return false
+	}
+
+	//删除实际文件
+	err := os.Remove("./file/" + fileName)
+	if err != nil {
+		//回滚
+		TST.Rollback()
+		log.Println("文件删除异常： " + err.Error())
+		return false
+	}
+
+	commit := TST.Commit()
+	// 提交事务
+	if commit.Error != nil {
+		fmt.Println("提交事务失败:", TST.Commit().Error)
+		return false
+	}
+
+	return true
 }
