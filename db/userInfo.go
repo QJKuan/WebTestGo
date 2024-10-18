@@ -1,6 +1,7 @@
 package db
 
 import (
+	"gorm.io/gorm"
 	"log"
 	"time"
 )
@@ -27,10 +28,19 @@ type UserInfo struct {
 }
 
 // SetUserInfo 插入最终用户信息
-func SetUserInfo(ui UserInfo) bool {
-	result := DB.Create(ui)
-	if result.Error != nil {
-		log.Printf("插入用户 %s 失败 报错 : %s \n", ui.Username, result.Error.Error())
+func SetUserInfo(username string, txt *gorm.DB) bool {
+	ui := UserInfo{Username: username}
+
+	//把 UserInfosTmp 的表内的数据输出到 UserInfo 结构体中
+	result1 := txt.Table("user_infos_tmps").First(&ui)
+	if result1.Error != nil {
+		log.Printf("获取用户 %s 失败 报错 : %s \n", ui.Username, result1.Error.Error())
+		return false
+	}
+
+	result2 := txt.Create(&ui)
+	if result2.Error != nil {
+		log.Printf("插入用户 %s 失败 报错 : %s \n", ui.Username, result2.Error.Error())
 		return false
 	}
 	return true

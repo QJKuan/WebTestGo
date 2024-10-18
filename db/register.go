@@ -77,9 +77,9 @@ func LoginDb(user Register) int {
 }
 
 // UserActivate 用户激活成为最终用户 将 able 字段变为 2
-func UserActivate(username string) bool {
+func UserActivate(username string, txt *gorm.DB) bool {
 	user := Register{Username: username}
-	result := DB.Model(&user).Update("able", 2)
+	result := txt.Model(&user).Update("able", 2)
 	if result.Error != nil {
 		log.Printf("用户 %s 激活异常 : %s \n", username, result.Error.Error())
 		return false

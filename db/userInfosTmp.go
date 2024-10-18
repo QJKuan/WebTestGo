@@ -1,6 +1,7 @@
 package db
 
 import (
+	"gorm.io/gorm"
 	"log"
 	"time"
 )
@@ -51,9 +52,9 @@ func SetUserInfoTmp(uit UserInfosTmp) bool {
 }
 
 // DeleteUserInfoTmp 删除临时用户
-func DeleteUserInfoTmp(username string) bool {
+func DeleteUserInfoTmp(username string, txt *gorm.DB) bool {
 	user := UserInfosTmp{Username: username}
-	result := DB.Delete(&user)
+	result := txt.Delete(&user)
 	if result.Error != nil {
 		log.Printf("删除用户 %s 失败 报错 : %s \n", username, result.Error.Error())
 		return false
