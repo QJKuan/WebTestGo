@@ -49,3 +49,29 @@ func SetUserInfoTmp(uit UserInfosTmp) bool {
 	ts.Commit()
 	return true
 }
+
+// DeleteUserInfoTmp 删除临时用户
+func DeleteUserInfoTmp(username string) bool {
+	user := UserInfosTmp{Username: username}
+	result := DB.Delete(&user)
+	if result.Error != nil {
+		log.Printf("删除用户 %s 失败 报错 : %s \n", username, result.Error.Error())
+		return false
+	}
+	log.Printf("删除用户 %s 成功 \n", username)
+	return true
+}
+
+// GetUserInfosTmp 分页查询临时表
+func GetUserInfosTmp(page int, pageSize int) *[]UserInfosTmp {
+	//查询起始位置 即偏移量
+	offSet := (page - 1) * pageSize
+
+	var uit []UserInfosTmp
+	//分页查找
+	result := DB.Offset(offSet).Limit(pageSize).Find(&uit)
+	if result.Error != nil {
+		log.Printf("分页查询用户表 UserInfosTmp 数据异常 : %s \n", result.Error.Error())
+	}
+	return &uit
+}

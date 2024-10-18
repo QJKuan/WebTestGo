@@ -62,6 +62,8 @@ func RequestInit(r *gin.Engine) {
 		GetFileInfos(adminR)
 		//文件删除
 		DeleteFile(adminR)
+		//激活临时用户
+		CheckUserTmp(adminR)
 	}
 
 }
