@@ -17,6 +17,8 @@ func main() {
 	router.RequestInit(r)
 	//注册数据库
 	db.InitDb()
+	//开启定时任务
+	router.Timer()
 
 	//启动
 	err := r.Run(config.SER_PORT)

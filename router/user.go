@@ -2,7 +2,6 @@ package router
 
 import (
 	"WebTest/db"
-	"github.com/bytedance/sonic"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -48,33 +47,20 @@ func SetUserInfoTmp(r *gin.RouterGroup) {
 			return
 		}
 
-		//获取当前登录用户
+		//获取当前登录用户的用户名称
 		token, err := c.Cookie("token")
-		user := getUser(token)
-		if user == nil {
-			c.String(http.StatusBadRequest, "请求异常,请联系管理员")
-			return
-		}
+		username := LINSHI_TOKEN[token]
 
 		//存入
-		uit.Username = user.Username
+		uit.Username = username
 		if !db.SetUserInfoTmp(uit) {
 			c.String(http.StatusInternalServerError, "请求异常,请联系管理员")
 			return
 		}
-		//注册成功后清除此token
+
+		//注册成功后清除此token 并清除登陆状态
 		delete(LINSHI_TOKEN, token)
+		delete(TOKEN_EXIST, username)
 		c.String(http.StatusOK, "注册成功")
 	})
-}
-
-func getUser(token string) *db.Register {
-	userJson := LINSHI_TOKEN[token]
-	var user db.Register
-	err := sonic.Unmarshal(userJson, &user)
-	if err != nil {
-		log.Println("token 中获取的 user 用户转换异常 : " + err.Error())
-		return nil
-	}
-	return &user
 }

@@ -3,31 +3,35 @@ package router
 import (
 	"WebTest/config"
 	"WebTest/db"
-	"crypto/sha256"
 	"fmt"
-	"github.com/bytedance/sonic"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"log"
 	"net/http"
 	"regexp"
+	"strings"
+	"time"
 )
 
-// USER_TOKEN 创建全局变量: 存储User Token的值
-var USER_TOKEN map[string][]byte
-var ADMIN_TOKEN map[string][]byte
-var LINSHI_TOKEN map[string][]byte
+// USER_TOKEN 存储User Token的值
+var USER_TOKEN map[string]string
+var ADMIN_TOKEN map[string]string
+var LINSHI_TOKEN map[string]string
+
+// TOKEN_EXIST 判断登录状态
+var TOKEN_EXIST map[string]string
 
 var RE *regexp.Regexp
 
 // FilterInit 初始化Filter需要的参数
 func FilterInit() {
 	//创建token的值存储map
-	userMap := make(map[string][]byte)
-	USER_TOKEN = userMap
-	adminMap := make(map[string][]byte)
-	ADMIN_TOKEN = adminMap
-	linMap := make(map[string][]byte)
-	LINSHI_TOKEN = linMap
+	USER_TOKEN = make(map[string]string)
+	ADMIN_TOKEN = make(map[string]string)
+	LINSHI_TOKEN = make(map[string]string)
+
+	//存入用户名和token 查看此用户是否处于登录状态
+	TOKEN_EXIST = make(map[string]string)
 
 	RE = regexp.MustCompile(`/(.*?)/`)
 }
@@ -163,21 +167,49 @@ func Logout(r *gin.Engine) {
 
 // 创建token并set进cookie中
 func saveToken(user db.Register, c *gin.Context, name string) bool {
-	userJson, err := sonic.Marshal(user)
-	if err != nil {
-		log.Println("user Json 转换异常 : " + err.Error())
-		return false
+	//判断此用户是否已经登录 已经登录则直接拿之前的token返回 未登录则直接生成token
+	username := user.Username
+	tokenExist, exist := TOKEN_EXIST[username]
+	if exist {
+		c.SetCookie("token", tokenExist, 0, "/", "localhost", false, true)
+		return true
 	}
 
 	//生成token
-	token := fmt.Sprintf("%x", sha256.Sum256(userJson))
-	if name == "admin" {
-		ADMIN_TOKEN[token] = userJson
-	} else if name == "user" {
-		USER_TOKEN[token] = userJson
-	} else {
-		LINSHI_TOKEN[token] = userJson
+	uid, errRan := uuid.NewRandom()
+	if errRan != nil {
+		log.Println("随机数创建失败 : " + errRan.Error())
+		return false
 	}
+	token := strings.ReplaceAll(uid.String(), "-", "")
+
+	//token := fmt.Sprintf("%x", sha256.Sum256(userJson))
+
+	//将 token 存入 Map 中
+	if name == "admin" {
+		ADMIN_TOKEN[token] = username
+	} else if name == "user" {
+		USER_TOKEN[token] = username
+	} else {
+		LINSHI_TOKEN[token] = username
+	}
+
+	TOKEN_EXIST[username] = token
 	c.SetCookie("token", token, 0, "/", "localhost", false, true)
 	return true
+}
+
+// Timer 定时任务清空map
+func Timer() {
+	go func() {
+		tick := time.NewTicker(24 * 7 * time.Hour)
+		defer tick.Stop() // 确保在协程结束时停止定时器
+		for {
+			select {
+			case <-tick.C:
+				FilterInit()
+				fmt.Println("===============清空所有登录信息=================")
+			}
+		}
+	}()
 }
