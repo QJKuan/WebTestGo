@@ -65,12 +65,14 @@ func GetFilesInfo(fileName string) bool {
 
 func DeleteFilesInfo(fileName string) bool {
 	fi := FileInfo{FileName: fileName}
+	//开启事务
+	ts := DB.Begin()
 
 	//在事务中删除数据库记录
-	res := TST.Delete(fi)
+	res := ts.Delete(fi)
 	if res.Error != nil {
 		//回滚
-		TST.Rollback()
+		ts.Rollback()
 		log.Println("数据库删除文件记录异常： " + res.Error.Error())
 		return false
 	}
@@ -79,15 +81,15 @@ func DeleteFilesInfo(fileName string) bool {
 	err := os.Remove("./file/" + fileName)
 	if err != nil {
 		//回滚
-		TST.Rollback()
+		ts.Rollback()
 		log.Println("文件删除异常： " + err.Error())
 		return false
 	}
 
-	commit := TST.Commit()
+	commit := ts.Commit()
 	// 提交事务
 	if commit.Error != nil {
-		fmt.Println("提交事务失败:", TST.Commit().Error)
+		fmt.Println("提交事务失败:", ts.Commit().Error)
 		return false
 	}
 

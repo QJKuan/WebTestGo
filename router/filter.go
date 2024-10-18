@@ -13,18 +13,21 @@ import (
 )
 
 // USER_TOKEN 创建全局变量: 存储User Token的值
-var USER_TOKEN map[string]interface{}
-var ADMIN_TOKEN map[string]interface{}
+var USER_TOKEN map[string][]byte
+var ADMIN_TOKEN map[string][]byte
+var LINSHI_TOKEN map[string][]byte
 
 var RE *regexp.Regexp
 
 // FilterInit 初始化Filter需要的参数
 func FilterInit() {
 	//创建token的值存储map
-	userMap := make(map[string]interface{})
+	userMap := make(map[string][]byte)
 	USER_TOKEN = userMap
-	adminMap := make(map[string]interface{})
+	adminMap := make(map[string][]byte)
 	ADMIN_TOKEN = adminMap
+	linMap := make(map[string][]byte)
+	LINSHI_TOKEN = linMap
 
 	RE = regexp.MustCompile(`/(.*?)/`)
 }
@@ -37,7 +40,7 @@ func TokenVerify() gin.HandlerFunc {
 		auth := RE.FindString(path)
 
 		//登录注册页面直接放行 退出登录也直接放行
-		if path == "/login" || path == "/user/add" || path == "/logout" {
+		if path == "/login" || path == "/user/add" || path == "/logout" || path == "/user/setUserInfoTmp" {
 			c.Next()
 			return
 		}
@@ -101,40 +104,41 @@ func LoginControl(r *gin.Engine) {
 
 		//判断是否为 admin 的用户
 		if username == config.ADM_UNE && password == config.ADM_PWD {
-			adminJ, err := sonic.Marshal(user)
-			if err != nil {
-				log.Println(err.Error())
+			//保存 Token
+			if !saveToken(user, c, "admin") {
 				c.String(http.StatusBadRequest, "请求参数异常")
 				return
 			}
-			token := fmt.Sprintf("%x", sha256.Sum256(adminJ))
-			ADMIN_TOKEN[token] = user
-			c.SetCookie("token", token, 0, "/", "localhost", false, true)
-			//fmt.Println("****Admin Token**** :", token)
 			c.String(http.StatusOK, "admin")
 			return
+
 		}
 
-		//去数据库确认用户密码是否正确
+		//返回值介绍 :
+		//1 : 用户名或密码错误 | 2 : 用户名未激活且未填写申请信息
+		//3 : 用户未激活 | 4 : 没有此用户 | 5 : 登陆成功
 		res := db.LoginDb(user)
-		if res == 3 {
-			//设置token在cookie中
-			userJ, err := sonic.Marshal(&user)
-			if err != nil {
-				c.String(http.StatusInternalServerError, "类型转换失败")
-				log.Println(err.Error())
+
+		//登陆成功
+		if res == 5 {
+			//保存 Token
+			if !saveToken(user, c, "user") {
+				c.String(http.StatusBadRequest, "请求参数异常")
 				return
 			}
-			//将参数转换为string
-			token := fmt.Sprintf("%x", sha256.Sum256(userJ))
-			//将Token存入TOKEN_MAP中
-			USER_TOKEN[token] = user
-			//fmt.Println("****User Token**** :", token)
-			//存入cookie
-			c.SetCookie("token", token, 0, "/", "localhost", false, true)
 			c.String(http.StatusOK, "user")
 			return
 		} else if res == 2 {
+			//用户名未激活且未填写申请信息
+			//保存 Token
+			if !saveToken(user, c, "linshi") {
+				c.String(http.StatusBadRequest, "请求参数异常")
+				return
+			}
+			c.String(http.StatusBadRequest, "ApplyFor")
+			return
+		} else if res == 3 {
+			//用户未激活
 			c.String(http.StatusBadRequest, "登陆失败，用户并未激活")
 			return
 		} else if res == 4 {
@@ -155,4 +159,25 @@ func Logout(r *gin.Engine) {
 		//c.Redirect(http.StatusFound, "/login")
 		c.Abort()
 	})
+}
+
+// 创建token并set进cookie中
+func saveToken(user db.Register, c *gin.Context, name string) bool {
+	userJson, err := sonic.Marshal(user)
+	if err != nil {
+		log.Println("user Json 转换异常 : " + err.Error())
+		return false
+	}
+
+	//生成token
+	token := fmt.Sprintf("%x", sha256.Sum256(userJson))
+	if name == "admin" {
+		ADMIN_TOKEN[token] = userJson
+	} else if name == "user" {
+		USER_TOKEN[token] = userJson
+	} else {
+		LINSHI_TOKEN[token] = userJson
+	}
+	c.SetCookie("token", token, 0, "/", "localhost", false, true)
+	return true
 }

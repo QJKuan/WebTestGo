@@ -32,43 +32,63 @@ type Register struct {
 
 // UserInfo 用户信息详情表
 type UserInfo struct {
-	ID        uint      `gorm:"primaryKey" json:"ID"`
-	IP        string    `json:"IP"`
-	Area      int       `json:"Area"`
-	JsName    string    `json:"JsName"`
-	JsLinkman string    `json:"JsLinkman"`
-	JsPhone   string    `json:"JsPhone"`
-	JcName    string    `json:"JcName"`
-	JcLinkman string    `json:"JcLinkman"`
-	JcPhone   string    `json:"JcPhone"`
-	KfName    string    `json:"KfName"`
-	KfLinkman string    `json:"KfLinkman"`
-	KfPhone   string    `json:"KfPhone"`
-	AppName   string    `json:"AppName"`
-	Env       string    `json:"Env"`
-	Created   time.Time `gorm:"autoCreateTime"`
-	Updated   time.Time `gorm:"autoUpdateTime"`
+	Username      string    `gorm:"primaryKey"`
+	IP            string    `json:"IP" form:"IP"`
+	Area          string    `json:"Area" form:"Area"`
+	JsName        string    `json:"JsName" form:"JsName"`
+	JsLinkman     string    `json:"JsLinkman" form:"JsLinkman"`
+	JsPhone       string    `json:"JsPhone" form:"JsPhone"`
+	JcName        string    `json:"JcName" form:"JcName"`
+	JcLinkman     string    `json:"JcLinkman" form:"JcLinkman"`
+	JcPhone       string    `json:"JcPhone" form:"JcPhone"`
+	KfName        string    `json:"KfName" form:"KfName"`
+	KfLinkman     string    `json:"KfLinkman" form:"KfLinkman"`
+	KfPhone       string    `json:"KfPhone" form:"KfPhone"`
+	AppName       string    `json:"AppName" form:"AppName"`
+	Env           string    `json:"Env" form:"Env"`
+	MiddleProduct string    `json:"MiddleProduct" form:"MiddleProduct"`
+	Created       time.Time `gorm:"autoCreateTime"`
+	Updated       time.Time `gorm:"autoUpdateTime"`
 }
 
 // UserInfosTmp 用户信息临时表
 type UserInfosTmp struct {
-	ID        uint      `gorm:"primaryKey" json:"ID"`
-	IP        string    `json:"IP"`
-	Area      int       `json:"Area"`
-	JsName    string    `json:"JsName"`
-	JsLinkman string    `json:"JsLinkman"`
-	JsPhone   string    `json:"JsPhone"`
-	JcName    string    `json:"JcName"`
-	JcLinkman string    `json:"JcLinkman"`
-	JcPhone   string    `json:"JcPhone"`
-	KfName    string    `json:"KfName"`
-	KfLinkman string    `json:"KfLinkman"`
-	KfPhone   string    `json:"KfPhone"`
-	AppName   string    `json:"AppName"`
-	Env       string    `json:"Env"`
-	Created   time.Time `gorm:"autoCreateTime"`
-	Updated   time.Time `gorm:"autoUpdateTime"`
+	Username      string    `gorm:"primaryKey"`
+	IP            string    `json:"IP" form:"IP"`
+	Area          string    `json:"Area" form:"Area"`
+	JsName        string    `json:"JsName" form:"JsName"`
+	JsLinkman     string    `json:"JsLinkman" form:"JsLinkman"`
+	JsPhone       string    `json:"JsPhone" form:"JsPhone"`
+	JcName        string    `json:"JcName" form:"JcName"`
+	JcLinkman     string    `json:"JcLinkman" form:"JcLinkman"`
+	JcPhone       string    `json:"JcPhone" form:"JcPhone"`
+	KfName        string    `json:"KfName" form:"KfName"`
+	KfLinkman     string    `json:"KfLinkman" form:"KfLinkman"`
+	KfPhone       string    `json:"KfPhone" form:"KfPhone"`
+	AppName       string    `json:"AppName" form:"AppName"`
+	Env           string    `json:"Env" form:"Env"`
+	MiddleProduct string    `json:"MiddleProduct" form:"MiddleProduct"`
+	Created       time.Time `gorm:"autoCreateTime"`
+	Updated       time.Time `gorm:"autoUpdateTime"`
 }
+
+/*type UserInfosTmp struct {
+	ID      uint        `gorm:"primaryKey"`
+	IP      string      `form:"IP"`
+	Area    string      `form:"Area"`
+	JianShe CompanyInfo `form:"JianShe"`
+	JiCheng CompanyInfo `form:"JiCheng"`
+	KaiFa   CompanyInfo `form:"KaiFa"`
+	AppName string      `form:"AppName"`
+	Env     string      `form:"Env"`
+	Created time.Time   `gorm:"autoCreateTime"`
+	Updated time.Time   `gorm:"autoUpdateTime"`
+}
+type CompanyInfo struct {
+	Name    string `json:"Name" form:"Name"`
+	Linkman string `json:"Linkman" form:"Linkman"`
+	Phone   string `json:"Phone" form:"Linkman"`
+}*/
 
 // RegisterDb 注册
 func RegisterDb(username string, pwd string) int {
@@ -96,6 +116,10 @@ func RegisterDb(username string, pwd string) int {
 
 // LoginDb 登录
 func LoginDb(user Register) int {
+	//返回值介绍 :
+	//1 : 用户名或密码错误 | 2 : 用户名未激活且未填写申请信息
+	//3 : 用户未激活 | 4 : 没有此用户 | 5 : 登陆成功
+
 	var reg Register
 	//查询用户是否存在
 	res := DB.First(&reg, "username=?", user.Username)
@@ -104,27 +128,46 @@ func LoginDb(user Register) int {
 	if res.Error != nil {
 		return 4
 	}
-	//查询用户时候激活
+	//查询用户是否激活
 	if reg.Able == 0 {
-		fmt.Printf("用户 %v 未激活 \n", user.Username)
-		// 返回 2 为用户名未激活
+		fmt.Printf("用户 %v 未激活且未填写申请信息 \n", user.Username)
+		// 用户名未激活且未填写申请信息
 		return 2
+	}
+	if reg.Able == 1 {
+		fmt.Printf("用户 %v 未激活 \n", user.Username)
+		// 用户名未激活
+		return 3
 	}
 	if user.Password == reg.Password {
 		fmt.Printf("用户 %v 在 %v 登陆成功 \n", user.Username, time.Now())
-		// 返回 2 为登陆成功
-		return 3
+		// 登陆成功
+		return 5
 	}
-	// 返回 1 为用户名或密码错误
+	// 用户名或密码错误
 	return 1
 }
 
 // SetUserInfoTmp 插入临时用户信息
-func SetUserInfoTmp(uit UserInfosTmp, username string) {
-	var user Register
-	//查询用户id
-	DB.First(&user, "username=?", username)
+func SetUserInfoTmp(uit UserInfosTmp) bool {
+	//开始事务
+	ts := DB.Begin()
 
-	uit.ID = user.ID
-	DB.Create(&uit)
+	//插入申请数据
+	resultU := ts.Create(&uit)
+	if resultU.Error != nil {
+		log.Println("插入数据异常 : " + resultU.Error.Error())
+		ts.Rollback()
+		return false
+	}
+
+	//将 user 的 able 更新为 1
+	resultR := ts.Model(&Register{Username: uit.Username}).Update("able", 1)
+	if resultR.Error != nil {
+		log.Println("更新数据异常 : " + resultU.Error.Error())
+		ts.Rollback()
+		return false
+	}
+	ts.Commit()
+	return true
 }

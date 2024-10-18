@@ -54,14 +54,13 @@ func RequestInit(r *gin.Engine) {
 	//管理员相关请求
 	{
 		adminR := r.Group("/admin")
-		AdminLogin(adminR)
 		//上传文件
 		UploadFile(adminR)
 		//下载文件
 		DownloadFile(adminR)
 		//获取所有文件详细信息
 		GetFileInfos(adminR)
-		//删除包
+		//文件删除
 		DeleteFile(adminR)
 	}
 

@@ -99,6 +99,7 @@ func GetFileInfos(r *gin.RouterGroup) {
 	})
 }
 
+// DeleteFile 文件删除功能
 func DeleteFile(r *gin.RouterGroup) {
 	r.POST("/deleteFile", func(c *gin.Context) {
 		fileName := c.PostForm("fileName")
