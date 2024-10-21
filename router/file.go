@@ -90,8 +90,10 @@ func GetFileInfos(r *gin.RouterGroup) {
 		if pag.PageSize >= 20 {
 			pag.PageSize = 20
 		}
+
 		pag.Page = 1
 		pag.PageSize = 10
+
 		infos := db.GetFilesInfos(pag.Page, pag.PageSize)
 		c.JSON(http.StatusOK, gin.H{
 			"files": infos,

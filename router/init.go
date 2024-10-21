@@ -64,6 +64,10 @@ func RequestInit(r *gin.Engine) {
 		DeleteFile(adminR)
 		//激活临时用户
 		CheckUserTmp(adminR)
+		//获取所有最终用户
+		GetUserInfos(adminR)
+		//获取所有临时用户
+		GetUserInfosTmp(adminR)
 	}
 
 }
