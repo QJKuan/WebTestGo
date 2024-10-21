@@ -68,6 +68,8 @@ func RequestInit(r *gin.Engine) {
 		GetUserInfos(adminR)
 		//获取所有临时用户
 		GetUserInfosTmp(adminR)
+		//删除临时表 重新填写
+		DeleteUserTmp(adminR)
 	}
 
 }

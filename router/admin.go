@@ -73,3 +73,21 @@ func GetUserInfosTmp(r *gin.RouterGroup) {
 		})
 	})
 }
+
+// DeleteUserTmp 临时表单不合格，删除临时表
+func DeleteUserTmp(r *gin.RouterGroup) {
+	r.POST("/deleteTmp", func(c *gin.Context) {
+		username := c.PostForm("username")
+
+		txt := db.DB.Begin()
+		//添加用户表 删除临时表 激活注册表
+		if !db.DeleteUserInfoTmp(username, txt) || !db.UserSendBack(username, txt) {
+			c.String(http.StatusInternalServerError, "删除异常")
+			txt.Rollback()
+			return
+		}
+		txt.Commit()
+		c.String(http.StatusOK, "删除成功")
+
+	})
+}

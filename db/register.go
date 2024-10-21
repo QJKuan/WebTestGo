@@ -86,3 +86,14 @@ func UserActivate(username string, txt *gorm.DB) bool {
 	}
 	return true
 }
+
+// UserSendBack 用户信息不合格 退回 将 able 改回 0
+func UserSendBack(username string, txt *gorm.DB) bool {
+	user := Register{Username: username}
+	result := txt.Model(&user).Update("able", 0)
+	if result.Error != nil {
+		log.Printf("用户 %s 激活异常 : %s \n", username, result.Error.Error())
+		return false
+	}
+	return true
+}
