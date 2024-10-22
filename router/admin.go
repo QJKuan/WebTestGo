@@ -39,12 +39,10 @@ func GetUserInfos(r *gin.RouterGroup) {
 			pag.PageSize = 20
 		}
 
-		pag.Page = 1
-		pag.PageSize = 10
-
-		infos := db.GetUserInfos(pag.Page, pag.PageSize)
+		infos, pagin := db.GetUserInfos(pag.Page, pag.PageSize)
 		c.JSON(http.StatusOK, gin.H{
 			"infos": infos,
+			"pagin": pagin,
 		})
 	})
 }
@@ -64,12 +62,10 @@ func GetUserInfosTmp(r *gin.RouterGroup) {
 			pag.PageSize = 20
 		}
 
-		pag.Page = 1
-		pag.PageSize = 10
-
-		tmp := db.GetUserInfosTmp(pag.Page, pag.PageSize)
+		tmp, pagin := db.GetUserInfosTmp(pag.Page, pag.PageSize)
 		c.JSON(http.StatusOK, gin.H{
-			"tmp": tmp,
+			"tmp":   tmp,
+			"pagin": pagin,
 		})
 	})
 }
@@ -82,12 +78,12 @@ func DeleteUserTmp(r *gin.RouterGroup) {
 		txt := db.DB.Begin()
 		//添加用户表 删除临时表 激活注册表
 		if !db.DeleteUserInfoTmp(username, txt) || !db.UserSendBack(username, txt) {
-			c.String(http.StatusInternalServerError, "删除异常")
+			c.String(http.StatusInternalServerError, "拒绝异常")
 			txt.Rollback()
 			return
 		}
 		txt.Commit()
-		c.String(http.StatusOK, "删除成功")
+		c.String(http.StatusOK, "拒绝成功")
 
 	})
 }

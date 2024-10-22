@@ -38,17 +38,27 @@ func SetFileInfo(fi FileInfo) {
 page 页数
 pageSize 每页多少条
 */
-func GetFilesInfos(page int, pageSize int) *[]FileInfo {
+func GetFilesInfos(page int, pageSize int) (*[]FileInfo, int) {
 	//查询起始位置 即偏移量
 	offSet := (page - 1) * pageSize
 
 	var fis []FileInfo
+	var count int64
+	var pagin int
+
+	//查看总页数
+	DB.Model(&FileInfo{}).Count(&count)
+	if int(count)%pageSize > 0 {
+		pagin = int(count)/pageSize + 1
+	} else {
+		pagin = int(count) / pageSize
+	}
 	//分页查找
 	result := DB.Offset(offSet).Limit(pageSize).Find(&fis)
 	if result.Error != nil {
 		fmt.Println(errors.New("分页查询异常"))
 	}
-	return &fis
+	return &fis, pagin
 
 }
 

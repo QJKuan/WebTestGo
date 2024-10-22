@@ -64,15 +64,26 @@ func DeleteUserInfoTmp(username string, txt *gorm.DB) bool {
 }
 
 // GetUserInfosTmp 分页查询临时表
-func GetUserInfosTmp(page int, pageSize int) *[]UserInfosTmp {
+func GetUserInfosTmp(page int, pageSize int) (*[]UserInfosTmp, int) {
 	//查询起始位置 即偏移量
 	offSet := (page - 1) * pageSize
 
 	var uit []UserInfosTmp
+	var count int64
+	var pagin int
+
+	//查看总页数
+	DB.Model(&UserInfosTmp{}).Count(&count)
+	if int(count)%pageSize > 0 {
+		pagin = int(count)/pageSize + 1
+	} else {
+		pagin = int(count) / pageSize
+	}
+
 	//分页查找
 	result := DB.Offset(offSet).Limit(pageSize).Find(&uit)
 	if result.Error != nil {
 		log.Printf("分页查询用户表 UserInfosTmp 数据异常 : %s \n", result.Error.Error())
 	}
-	return &uit
+	return &uit, pagin
 }

@@ -47,15 +47,26 @@ func SetUserInfo(username string, txt *gorm.DB) bool {
 }
 
 // GetUserInfos 分页查询最终用户表
-func GetUserInfos(page int, pageSize int) *[]UserInfo {
+func GetUserInfos(page int, pageSize int) (*[]UserInfo, int) {
 	//查询起始位置 即偏移量
 	offSet := (page - 1) * pageSize
 
 	var ui []UserInfo
+	var count int64
+	var pagin int
+
+	//查看总页数
+	DB.Model(&UserInfo{}).Count(&count)
+	if int(count)%pageSize > 0 {
+		pagin = int(count)/pageSize + 1
+	} else {
+		pagin = int(count) / pageSize
+	}
+
 	//分页查找
 	result := DB.Offset(offSet).Limit(pageSize).Find(&ui)
 	if result.Error != nil {
 		log.Printf("分页查询用表 UserInfo 数据异常 : %s \n", result.Error.Error())
 	}
-	return &ui
+	return &ui, pagin
 }
