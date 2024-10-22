@@ -70,6 +70,8 @@ func RequestInit(r *gin.Engine) {
 		GetUserInfosTmp(adminR)
 		//删除临时表 重新填写
 		DeleteUserTmp(adminR)
+		//导出为 excel 文件
+		DownExcel(adminR)
 	}
 
 }

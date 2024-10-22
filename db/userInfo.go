@@ -70,3 +70,14 @@ func GetUserInfos(page int, pageSize int) (*[]UserInfo, int) {
 	}
 	return &ui, pagin
 }
+
+// GetAllUserInfo 获取所有的最终用户信息
+func GetAllUserInfo() []UserInfo {
+	var uis []UserInfo
+	result := DB.Find(&uis)
+	if result.Error != nil {
+		log.Println("查询所有最终用户异常 : " + result.Error.Error())
+		return nil
+	}
+	return uis
+}

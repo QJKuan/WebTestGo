@@ -2,6 +2,7 @@ package router
 
 import (
 	"WebTest/db"
+	"WebTest/server"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -85,5 +86,18 @@ func DeleteUserTmp(r *gin.RouterGroup) {
 		txt.Commit()
 		c.String(http.StatusOK, "拒绝成功")
 
+	})
+}
+
+func DownExcel(r *gin.RouterGroup) {
+	r.GET("/downExcel", func(c *gin.Context) {
+		excelBuffer := server.CreateExcel()
+
+		// 设置响应头，告诉浏览器这是一个附件，并指定文件名
+		//c.Header("Content-Disposition", "attachment;")
+		//c.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+		// 将 Excel 文件内容写入响应体
+		c.Data(http.StatusOK, "application/octet-stream", excelBuffer.Bytes())
 	})
 }
