@@ -22,6 +22,7 @@ var LINSHI_TOKEN map[string]string
 var TOKEN_EXIST map[string]string
 
 var RE *regexp.Regexp
+var FILE_RE *regexp.Regexp
 
 // FilterInit 初始化Filter需要的参数
 func FilterInit() {
@@ -34,6 +35,7 @@ func FilterInit() {
 	TOKEN_EXIST = make(map[string]string)
 
 	RE = regexp.MustCompile(`/(.*?)/`)
+	FILE_RE = regexp.MustCompile(`[^.]*$`)
 }
 
 // TokenVerify 登录校验逻辑

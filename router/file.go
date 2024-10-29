@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
-	"regexp"
 	"strings"
 )
 
@@ -21,12 +20,10 @@ func UploadFile(r *gin.RouterGroup) {
 		if !strings.Contains(file.Filename, ".") {
 			c.String(http.StatusBadRequest, "上传的文件格式不正确，不包含尾缀")
 			return
-
 		}
 
 		//获取文件尾缀
-		re := regexp.MustCompile(`[^.]*$`)
-		suf := re.FindString(file.Filename)
+		suf := FILE_RE.FindString(file.Filename)
 
 		//查看文件尾缀是否正确
 		if suf == "zip" || suf == "7z" || suf == "gz" {
@@ -66,7 +63,6 @@ func DownloadFile(r *gin.RouterGroup) {
 			return
 		}
 		//返回文件
-		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", fileName))
 		c.FileAttachment("./file/"+fileName, fileName)
 	})
 }
