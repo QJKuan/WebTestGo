@@ -1,9 +1,12 @@
 server:
   port: ":8080"
+  #设置上传内存数大小
   uploadMem: 320
   db: "root:akn123@tcp(139.9.63.51:3522)/goTest?charset=utf8mb4&parseTime=True&loc=Local"
+  #设置cookie作用域的 ip 地址
+  cookieHost: localhost
 
-#管理员信息
+#登录的管理员信息
 admin:
   username: "apusic666"
   pwd: "12345"

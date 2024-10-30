@@ -1,11 +1,12 @@
 package config
 
 var (
-	SER_PORT  string
-	GBL_UPMEM int64
-	DB_DNS    string
-	ADM_UNE   string
-	ADM_PWD   string
+	SER_PORT    string
+	GBL_UPMEM   int64
+	DB_DNS      string
+	ADM_UNE     string
+	ADM_PWD     string
+	COOKIE_HOST string
 )
 
 func SetGbl(conf Cfg) {
@@ -14,4 +15,5 @@ func SetGbl(conf Cfg) {
 	DB_DNS = conf.Server.Dns
 	ADM_UNE = conf.Admin.Username
 	ADM_PWD = conf.Admin.Password
+	COOKIE_HOST = conf.Server.CookieHost
 }

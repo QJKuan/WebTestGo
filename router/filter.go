@@ -160,7 +160,7 @@ func LoginControl(r *gin.Engine) {
 // Logout 退出登录
 func Logout(r *gin.Engine) {
 	r.GET("/logout", func(c *gin.Context) {
-		c.SetCookie("token", "", 0, "/", "localhost", false, true)
+		c.SetCookie("token", "", 0, "/", config.COOKIE_HOST, false, true)
 		c.String(http.StatusOK, "退出登录成功")
 		//c.Redirect(http.StatusFound, "/login")
 		c.Abort()
@@ -173,7 +173,7 @@ func saveToken(user db.Register, c *gin.Context, name string) bool {
 	username := user.Username
 	tokenExist, exist := TOKEN_EXIST[username]
 	if exist {
-		c.SetCookie("token", tokenExist, 0, "/", "localhost", false, true)
+		c.SetCookie("token", tokenExist, 0, "/", config.COOKIE_HOST, false, true)
 		return true
 	}
 
@@ -197,7 +197,7 @@ func saveToken(user db.Register, c *gin.Context, name string) bool {
 	}
 
 	TOKEN_EXIST[username] = token
-	c.SetCookie("token", token, 0, "/", "localhost", false, true)
+	c.SetCookie("token", token, 0, "/", config.COOKIE_HOST, false, true)
 	return true
 }
 
